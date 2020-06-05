@@ -1,1 +1,41 @@
-junk stuff
+<table class="table table-striped table-bordered">
+<thead>
+<tr>
+<th style="text-align:left">Locally Hosted</th>
+<th style="text-align:left">Heroku Hosted</th>
+<th style="text-align:left">Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><a href="http://localhost:56000/users">http://localhost:56000/users</a></td>
+<td style="text-align:left"><a href="https://mock-rfid-system.herokuapp.com/users">https://mock-rfid-system.herokuapp.com/users</a></td>
+<td style="text-align:left">list all users in json format</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:56000/users?json=n">http://localhost:56000/users?json=n</a></td>
+<td style="text-align:left"><a href="https://mock-rfid-system.herokuapp.com/users?json=n">https://mock-rfid-system.herokuapp.com/users?json=n</a></td>
+<td style="text-align:left">list all users in plain text format</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:56000/getuser?rfid=aa">http://localhost:56000/getuser?rfid=aa</a></td>
+<td style="text-align:left"><a href="https://mock-rfid-system.herokuapp.com/getuser?rfid=aa">https://mock-rfid-system.herokuapp.com/getuser?rfid=aa</a></td>
+<td style="text-align:left">return all details for user with rfid tag aa in json format</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:56000/getuser?rfid=aa">http://localhost:56000/getuser?rfid=aa</a></td>
+<td style="text-align:left"><a href="https://mock-rfid-system.herokuapp.com/getuser?rfid=aa&amp;json=n">https://mock-rfid-system.herokuapp.com/getuser?rfid=aa&amp;json=n</a></td>
+<td style="text-align:left">return all details for user with rfid tag aa in plain text format</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:56000/check?rfid=cc&amp;device=laser">http://localhost:56000/check?rfid=cc&amp;device=laser</a></td>
+<td style="text-align:left"><a href="https://mock-rfid-system.herokuapp.com/?rfid=cc&amp;device=laser">https://mock-rfid-system.herokuapp.com/?rfid=cc&amp;device=laser</a></td>
+<td style="text-align:left">check if user with rfid cc is allowed access to device laser in json format</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:56000/check?rfid=cc&amp;device=laser">http://localhost:56000/check?rfid=cc&amp;device=laser</a></td>
+<td style="text-align:left"><a href="https://mock-rfid-system.herokuapp.com/?rfid=cc&amp;device=laser&amp;json=n">https://mock-rfid-system.herokuapp.com/?rfid=cc&amp;device=laser&amp;json=n</a></td>
+<td style="text-align:left">check if user with rfid cc is allowed access to device laser in plain text format</td>
+</tr>
+</tbody>
+</table>
