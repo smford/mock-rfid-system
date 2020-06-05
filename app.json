@@ -1,0 +1,24 @@
+{
+   "name":"mock-rfid-system",
+   "description":"This app does one little thing, and does it well.",
+   "keywords":[
+      "mock-rfid-system",
+      "rfid"
+   ],
+   "website":"https://github.com/smford/mock-rfid-system",
+   "repository":"https://github.com/smford/mock-rfid-system",
+   "scripts":{
+      "postdeploy":"bundle exec rake bootstrap"
+   },
+   "env":{
+      "PORT":{
+         "description":"The port to listen on",
+         "value":"80"
+      }
+   },
+   "buildpacks":[
+      {
+         "url":"heroku/go"
+      }
+   ]
+}
