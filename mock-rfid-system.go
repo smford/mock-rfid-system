@@ -15,14 +15,25 @@ import (
 	"os"
 	_ "sort"
 	"strings"
+	"time"
 )
 
 var allusers []eehuser
 
 type eehuser struct {
-	Name   string `json:"Name"`
-	RFID   string `json:"RFID"`
-	Status string `json:"Status"`
+	Name        string `json:"Name"`
+	RFID        string `json:"RFID"`
+	Status      string `json:"Status"`
+	AxxLaser    string `json:"AxxLaser"`
+	AxxTableSaw string `json:"AxxTableSaw"`
+	Axx3d       string `json:"Axx3d"`
+}
+
+type eehdeviceresponse struct {
+	Timestamp string `json:"Timestamp"`
+	RFID      string `json:"RFID"`
+	EEHDevice string `json:"EEHDevice"`
+	Grant     string `json:"Grant"`
 }
 
 func init() {
@@ -36,9 +47,9 @@ func init() {
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
 
-	allusers = append(allusers, eehuser{"user1", "aa", "user"})
-	allusers = append(allusers, eehuser{"user2", "bb", "user"})
-	allusers = append(allusers, eehuser{"admin1", "cc", "admin"})
+	allusers = append(allusers, eehuser{"user1", "aa", "user", "true", "false", "true"})
+	allusers = append(allusers, eehuser{"user2", "bb", "user", "false", "true", "false"})
+	allusers = append(allusers, eehuser{"admin1", "cc", "admin", "true", "true", "true"})
 }
 
 func main() {
@@ -114,18 +125,19 @@ func handlerUsers(w http.ResponseWriter, r *http.Request) {
 	if strings.ToLower(queries.Get("json")) == "n" {
 		givejson = false
 	}
-	listUsers(w, "someuser", givejson)
+	listUsers(w, givejson)
 }
 
-func listUsers(webprint http.ResponseWriter, username string, printjson bool) {
+func listUsers(webprint http.ResponseWriter, printjson bool) {
 	if printjson {
 		c, err := json.Marshal(allusers)
 		showerror("cannot marshal json", err, "warn")
 		webprint.Header().Set("Content-Type", "application/json")
 		fmt.Fprintf(webprint, "%s", c)
 	} else {
+		fmt.Fprintf(webprint, "%-17s  %-15s %-15s | %-11s %-11s  %-11s\n", "Name", "RFID", "Status", "AxxLaser", "AxxTableSaw", "Axx3d")
 		for _, user := range allusers {
-			fmt.Fprintf(webprint, "%-17s  %-15s    %s\n", user.Name, user.RFID, user.Status)
+			fmt.Fprintf(webprint, "%-17s  %-15s %-15s | %-11s %-11s  %-11s\n", user.Name, user.RFID, user.Status, user.AxxLaser, user.AxxTableSaw, user.Axx3d)
 		}
 	}
 }
@@ -141,12 +153,9 @@ func handlerGetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func getUser(webprint http.ResponseWriter, rfid string, printjson bool) {
-
 	var founduser eehuser
-
 	for i := range allusers {
 		if allusers[i].RFID == rfid {
-			// Found!
 			founduser = allusers[i]
 			break
 		}
@@ -159,6 +168,63 @@ func getUser(webprint http.ResponseWriter, rfid string, printjson bool) {
 		fmt.Fprintf(webprint, "%s", c)
 	} else {
 		fmt.Fprintf(webprint, "%-17s  %-15s    %s\n", founduser.Name, founduser.RFID, founduser.Status)
+	}
+}
+
+func handlerCheckUserAccess(w http.ResponseWriter, r *http.Request) {
+	log.Println("Starting handlerCheckUserAccess")
+	givejson := true
+	queries := r.URL.Query()
+	if strings.ToLower(queries.Get("json")) == "n" {
+		givejson = false
+	}
+	checkUserAccess(w, strings.ToLower(queries.Get("rfid")), strings.ToLower(queries.Get("device")), givejson)
+}
+
+func checkUserAccess(webprint http.ResponseWriter, rfid string, eehdevice string, printjson bool) {
+	var founduser eehuser
+	grantaccess := false
+
+	for i := range allusers {
+		if allusers[i].RFID == rfid {
+			// Found!
+			founduser = allusers[i]
+			break
+		}
+	}
+
+	switch strings.ToLower(eehdevice) {
+	case "laser":
+		if strings.ToLower(founduser.AxxLaser) == "true" {
+			grantaccess = true
+		}
+	case "tablesaw":
+		if strings.ToLower(founduser.AxxTableSaw) == "true" {
+			grantaccess = true
+		}
+	case "3d":
+		if strings.ToLower(founduser.Axx3d) == "true" {
+			grantaccess = true
+		}
+	default:
+		grantaccess = false
+	}
+
+	var accessresponse eehdeviceresponse
+	timestamp := time.Now()
+	accessresponse.Timestamp = timestamp.String()
+	accessresponse.RFID = rfid
+	accessresponse.EEHDevice = eehdevice
+	accessresponse.Grant = fmt.Sprintf("%t", grantaccess)
+
+	if printjson {
+		c, err := json.Marshal(accessresponse)
+		showerror("cannot marshal json", err, "warn")
+		webprint.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(webprint, "%s", c)
+	} else {
+		//fmt.Fprintf(webprint, "%t\n", grantaccess)
+		fmt.Fprintf(webprint, "%-44s  %-15s %-8s %s\n", accessresponse.Timestamp, accessresponse.RFID, accessresponse.EEHDevice, accessresponse.Grant)
 	}
 }
 
@@ -185,6 +251,10 @@ func startWeb(listenip string, listenport string, usetls bool) {
 	getuserRouter := r.PathPrefix("/getuser").Subrouter()
 	getuserRouter.HandleFunc("", handlerGetUser)
 	getuserRouter.Use(loggingMiddleware)
+
+	checkaccessRouter := r.PathPrefix("/check").Subrouter()
+	checkaccessRouter.HandleFunc("", handlerCheckUserAccess)
+	checkaccessRouter.Use(loggingMiddleware)
 
 	showerror("Starting HTTP Webserver", errors.New(listenip+":"+listenport), "info")
 	err := http.ListenAndServe(listenip+":"+listenport, r)

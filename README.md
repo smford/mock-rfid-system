@@ -6,6 +6,7 @@
 |:--|:--|
 | `http://localhost:56000/users` | list all users |
 | `http://localhost:56000/getuser?rfid=aa` | return all details for user with rfid tag aa |
+| `http://localhost:56000/check?rfid=cc&device=laser` | check if user with rfid cc is allowed access to device laser |
 
 All output is using json by default, to disable json simply append `json=n` to the end of the url
 
