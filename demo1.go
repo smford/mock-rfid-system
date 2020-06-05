@@ -25,6 +25,7 @@ type eehuser struct {
 
 func init() {
 	flag.Bool("help", false, "Display help")
+	flag.String("indexfile", "index.html", "Default file to present")
 	flag.String("listenip", "", "IP address for webservice to bind to")
 	flag.String("listenport", "56000", "Port for webservice to listen upon, default 56000")
 	flag.Bool("listusers", false, "List users")
