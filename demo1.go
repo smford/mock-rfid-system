@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "encoding/json"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -16,6 +16,8 @@ import (
 	_ "sort"
 	"strings"
 )
+
+var allusers []eehuser
 
 type eehuser struct {
 	Name   string `json:"Name"`
@@ -33,6 +35,10 @@ func init() {
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
+
+	allusers = append(allusers, eehuser{"user1", "aa", "user"})
+	allusers = append(allusers, eehuser{"user2", "bb", "user"})
+	allusers = append(allusers, eehuser{"admin1", "cc", "admin"})
 }
 
 func main() {
@@ -103,17 +109,57 @@ func handlerIndex(w http.ResponseWriter, r *http.Request) {
 
 func handlerUsers(w http.ResponseWriter, r *http.Request) {
 	log.Println("Starting handlerUsers")
-	givejson := false
+	givejson := true
 	queries := r.URL.Query()
-	if strings.ToLower(queries.Get("json")) == "y" {
-		givejson = true
-		w.Header().Set("Content-Type", "application/json")
+	if strings.ToLower(queries.Get("json")) == "n" {
+		givejson = false
 	}
 	listUsers(w, "someuser", givejson)
 }
 
 func listUsers(webprint http.ResponseWriter, username string, printjson bool) {
-	fmt.Fprintf(webprint, "%s\n", "some username")
+	if printjson {
+		c, err := json.Marshal(allusers)
+		showerror("cannot marshal json", err, "warn")
+		webprint.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(webprint, "%s", c)
+	} else {
+		for _, user := range allusers {
+			fmt.Fprintf(webprint, "%-17s  %-15s    %s\n", user.Name, user.RFID, user.Status)
+		}
+	}
+}
+
+func handlerGetUser(w http.ResponseWriter, r *http.Request) {
+	log.Println("Starting handlerGetUser")
+	givejson := true
+	queries := r.URL.Query()
+	if strings.ToLower(queries.Get("json")) == "n" {
+		givejson = false
+	}
+	getUser(w, strings.ToLower(queries.Get("rfid")), givejson)
+}
+
+func getUser(webprint http.ResponseWriter, rfid string, printjson bool) {
+
+	var founduser eehuser
+
+	for i := range allusers {
+		if allusers[i].RFID == rfid {
+			// Found!
+			founduser = allusers[i]
+			break
+		}
+	}
+
+	if printjson {
+		c, err := json.Marshal(founduser)
+		showerror("cannot marshal json", err, "warn")
+		webprint.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(webprint, "%s", c)
+	} else {
+		fmt.Fprintf(webprint, "%-17s  %-15s    %s\n", founduser.Name, founduser.RFID, founduser.Status)
+	}
 }
 
 func loggingMiddleware(next http.Handler) http.Handler {
@@ -132,9 +178,13 @@ func startWeb(listenip string, listenport string, usetls bool) {
 		r.HandleFunc("/", handlerIndex)
 	}
 
-	networksRouter := r.PathPrefix("/users").Subrouter()
-	networksRouter.HandleFunc("", handlerUsers)
-	networksRouter.Use(loggingMiddleware)
+	usersRouter := r.PathPrefix("/users").Subrouter()
+	usersRouter.HandleFunc("", handlerUsers)
+	usersRouter.Use(loggingMiddleware)
+
+	getuserRouter := r.PathPrefix("/getuser").Subrouter()
+	getuserRouter.HandleFunc("", handlerGetUser)
+	getuserRouter.Use(loggingMiddleware)
 
 	showerror("Starting HTTP Webserver", errors.New(listenip+":"+listenport), "info")
 	err := http.ListenAndServe(listenip+":"+listenport, r)
