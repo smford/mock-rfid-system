@@ -39,9 +39,9 @@ type eehdeviceresponse struct {
 func init() {
 	flag.Bool("help", false, "Display help")
 	flag.String("indexfile", "index.html", "Default file to present")
-	flag.String("listenip", "", "IP address for webservice to bind to")
+	flag.String("listenip", "", "IP address for webservice to bind to, default all")
 	flag.String("listenport", "56000", "Port for webservice to listen upon, default 56000")
-	flag.Bool("listusers", false, "List users")
+	flag.Bool("listusers", false, "List users and their permissions")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
@@ -68,9 +68,9 @@ func displayHelp() {
 	helpmessage := `
 Options:
       --help            Help
-      --listenip        IP to listen on
-      --listenport      Port to listen on
-      --listusers       List users
+      --listenip        IP to listen on, default all
+      --listenport      Port to listen on, default 56000
+      --listusers       List users and their permissions
 `
 	fmt.Printf("%s", helpmessage)
 
