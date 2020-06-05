@@ -42,7 +42,6 @@ func init() {
 	flag.String("listenip", "", "IP address for webservice to bind to")
 	flag.String("listenport", "56000", "Port for webservice to listen upon, default 56000")
 	flag.Bool("listusers", false, "List users")
-	flag.Bool("listdevices", false, "List devices")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
@@ -57,6 +56,10 @@ func main() {
 		displayHelp()
 	}
 
+	if viper.GetBool("listusers") {
+		listUsersCLI()
+	}
+
 	startWeb(viper.GetString("ListenIP"), viper.GetString("ListenPort"), viper.GetBool("EnableTLS"))
 	os.Exit(0)
 }
@@ -68,7 +71,6 @@ Options:
       --listenip        IP to listen on
       --listenport      Port to listen on
       --listusers       List users
-      --listdevices     List devices
 `
 	fmt.Printf("%s", helpmessage)
 
@@ -140,6 +142,14 @@ func listUsers(webprint http.ResponseWriter, printjson bool) {
 			fmt.Fprintf(webprint, "%-17s  %-15s %-15s | %-11s %-11s  %-11s\n", user.Name, user.RFID, user.Status, user.AxxLaser, user.AxxTableSaw, user.Axx3d)
 		}
 	}
+}
+
+func listUsersCLI() {
+	fmt.Printf("%-17s  %-15s %-15s | %-11s %-11s  %-11s\n", "Name", "RFID", "Status", "AxxLaser", "AxxTableSaw", "Axx3d")
+	for _, user := range allusers {
+		fmt.Printf("%-17s  %-15s %-15s | %-11s %-11s  %-11s\n", user.Name, user.RFID, user.Status, user.AxxLaser, user.AxxTableSaw, user.Axx3d)
+	}
+	os.Exit(0)
 }
 
 func handlerGetUser(w http.ResponseWriter, r *http.Request) {
