@@ -64,7 +64,7 @@ Options:
 	os.Exit(0)
 }
 
-func ValidIP(ip string) bool {
+func validIP(ip string) bool {
 	if net.ParseIP(ip) != nil {
 		return true
 	}
