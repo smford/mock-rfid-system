@@ -46,6 +46,9 @@ func init() {
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
 
+	// "Name", "RFID", "Status", "AxxLaser", "AxxTableSaw", "Axx3d")
+	allusers = append(allusers, eehuser{"blue1", "7AA5E03F", "user", "true", "false", "true"})
+	allusers = append(allusers, eehuser{"white1", "90379632", "user", "false", "true", "false"})
 	allusers = append(allusers, eehuser{"user1", "aa", "user", "true", "false", "true"})
 	allusers = append(allusers, eehuser{"user2", "bb", "user", "false", "true", "false"})
 	allusers = append(allusers, eehuser{"admin1", "cc", "admin", "true", "true", "true"})
