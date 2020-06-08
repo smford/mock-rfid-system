@@ -192,7 +192,7 @@ func handlerCheckUserAccess(w http.ResponseWriter, r *http.Request) {
 	if strings.ToLower(queries.Get("json")) == "n" {
 		givejson = false
 	}
-	checkUserAccess(w, strings.ToLower(queries.Get("rfid")), strings.ToLower(queries.Get("device")), givejson)
+	checkUserAccess(w, queries.Get("rfid"), strings.ToLower(queries.Get("device")), givejson)
 }
 
 func checkUserAccess(webprint http.ResponseWriter, rfid string, eehdevice string, printjson bool) {
