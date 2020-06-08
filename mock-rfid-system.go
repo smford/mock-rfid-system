@@ -162,7 +162,8 @@ func handlerGetUser(w http.ResponseWriter, r *http.Request) {
 	if strings.ToLower(queries.Get("json")) == "n" {
 		givejson = false
 	}
-	getUser(w, strings.ToLower(queries.Get("rfid")), givejson)
+	//getUser(w, strings.ToLower(queries.Get("rfid")), givejson)
+	getUser(w, queries.Get("rfid"), givejson)
 }
 
 func getUser(webprint http.ResponseWriter, rfid string, printjson bool) {
