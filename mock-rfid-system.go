@@ -51,7 +51,7 @@ func init() {
 	allusers = append(allusers, eehuser{"white1", "90379632", "user", "false", "true", "false"})
 	allusers = append(allusers, eehuser{"user1", "aa", "user", "true", "false", "true"})
 	allusers = append(allusers, eehuser{"user2", "bb", "user", "false", "true", "false"})
-	allusers = append(allusers, eehuser{"admin1", "cc", "admin", "true", "true", "true"})
+	allusers = append(allusers, eehuser{"admin1", "598BD6B9", "admin", "false", "false", "false"})
 }
 
 func main() {
