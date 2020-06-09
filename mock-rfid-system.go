@@ -224,6 +224,11 @@ func checkUserAccess(webprint http.ResponseWriter, rfid string, eehdevice string
 		grantaccess = false
 	}
 
+	// user is an admin, give access
+	if strings.ToLower(founduser.Status) == "admin" {
+		grantaccess = true
+	}
+
 	var accessresponse eehdeviceresponse
 	timestamp := time.Now()
 	accessresponse.Timestamp = timestamp.String()
